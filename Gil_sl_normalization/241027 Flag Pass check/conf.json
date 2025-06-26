@@ -1,0 +1,92 @@
+{
+    "!OutputDirectory": "<<working_directory>>",
+    "!SOMAmerReferenceSource": "<<annotations_workbook_path>>",
+    "!SampleWorkbooks": ["<<workbook_path>>"],
+    "!SampleWorkbooksConfig": "<<sample_workbooks_config>>",
+    "SiteId": "<<plate_name>>",
+    "!AgilentDirectory": "<<agilent_directory>>",
+    "!AssayType": "SomaScan",
+    "!AssayVersion": "<<assay_version>>",
+    "!AssayMenu": "<<assay_menu>>",
+    "!MasterMixLot": "<<master_mix_lot>>",
+    "!AssayRobot": "Robot",
+    "!CreatedBy": "OncoHost",
+    "!ExpDate": "<<experiment_date>>",
+    "Notes": "",
+    "!ProteinEffectiveDate": "2023-02-27",
+    "RunNotes": "",
+    "LabLocation": "OncoHost",
+    "StudyOrganism": "Human",
+    "CalibratorId": "<<calibrator_id>>",
+    "!StudyId": "<<plate_name>>",
+    "StudyMatrix": "<<study_matrix>>",
+    "PlateType": "Prod",
+    "ReportConfig": {
+        "analysisSteps": [
+            {
+                "stepType": "hybNorm",
+                "referenceSource": "intraplate",
+                "includeSampleTypes": [
+                    "QC",
+                    "Calibrator",
+                    "Buffer"
+                ]
+            },
+            {
+                "stepName": "medNormInt",
+                "stepType": "medNorm",
+                "includeSampleTypes": [
+                    "Calibrator",
+                    "Buffer"
+                ],
+                "referenceSource": "intraplate",
+                "referenceFields": [
+                    "SampleId"
+                ]
+            },
+            {
+                "stepType": "plateScale",
+                "referenceSource": "<<calibrator_reference_path>>"
+            },
+            {
+                "stepType": "calibrate",
+                "referenceSource": "<<calibrator_reference_path>>",
+                "tailThreshold": 10.0
+            },
+            {
+                "stepName": "anmlQC",
+                "stepType": "ANML",
+                "effectSizeCutoff": 2.0,
+                "minFractionUsed": 0.3,
+                "includeSampleTypes": [
+                    "QC"
+                ],
+                "referenceSource": "<<anml_reference_path>>"
+            },
+            {
+                "stepType": "qcCheck",
+                "QCReferenceSource": "<<qc_reference_path>>",
+                "tailsCriteriaLower": 0.8,
+                "tailsCriteriaUpper": 1.2,
+                "tailThreshold": 15.0,
+                "prenormalized": true
+            },
+            {
+                "stepName": "anmlSMP",
+                "stepType": "ANML",
+                "effectSizeCutoff": 2.0,
+                "minFractionUsed": 0.3,
+                "includeSampleTypes": [
+                    "Sample"
+                ],
+                "referenceSource": "<<anml_reference_path>>"
+            }
+        ],
+        "qualityReports": [
+            "SQS Report"
+        ],
+        "filter": {
+            "proteinEffectiveDate": ""
+        }
+    }
+}

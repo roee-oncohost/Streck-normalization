@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Feb  6 14:19:47 2025
+
+@author: GilLoewenthal
+"""
+
+import numpy as np
+import pandas as pd
+import re
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import os
+mpl.rcParams['figure.dpi'] = 300
+import seaborn as sns
+
+#%% Loading the data
+
+df_prot_calib = pd.read_csv(r"C:\Users\GilLoewenthal\Oncohost DX\Shares - R&D\Or\proteomic_data_in_calibrator_norm_for_GL\calibrator_norm_proteomics_partial_set.csv")
+pattern = re.compile(r'^\d+-\d+$')
+prot_cols = [x for x in df_prot_calib.columns if pattern.match(x)]
+df_prot_calib[prot_cols].median()
+anml_ref = pd.read_csv('SD4.1ReV_Plasma_ANML.txt',delimiter='\t')
+anml_ref_nsclc = anml_ref.copy().set_index('SeqId')
+anml_ref_nsclc['RefMedian'] = df_prot_calib[prot_cols].median()
+anml_ref_nsclc['RefSD'] =  df_prot_calib[prot_cols].std()
+anml_ref_nsclc['RefLog10Median'] = np.log10(df_prot_calib[prot_cols]).median()
+anml_ref_nsclc['RefLog10MAD'] = stats.median_abs_deviation(np.log10(df_prot_calib[prot_cols]), scale='normal')
+anml_ref_nsclc['SeqId'] = anml_ref_nsclc.index
+anml_ref_nsclc = anml_ref_nsclc[anml_ref.columns].set_index('Target')
+anml_ref_nsclc.to_csv('OH_NSCLC_ANML_ref.txt', sep='\t')
+
+
+plt.figure()
+plt.plot(anml_ref_nsclc['RefLog10MAD'], anml_ref['RefLog10MAD'], 'x')
+plt.plot(anml_ref_nsclc['RefLog10MAD'], anml_ref_nsclc['RefLog10MAD'], '--')
+plt.show()

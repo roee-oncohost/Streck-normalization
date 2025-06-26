@@ -1,0 +1,8 @@
+,stepType,referenceSource,includeSampleTypes,stepName,referenceFields,tailThreshold,effectSizeCutoff,minFractionUsed,QCReferenceSource,tailsCriteriaLower,tailsCriteriaUpper,prenormalized
+0,hybNorm,intraplate,"['QC', 'Calibrator', 'Buffer']",,,,,,,,,
+1,medNorm,intraplate,"['Calibrator', 'Buffer']",medNormInt,['SampleId'],,,,,,,
+2,plateScale,<<calibrator_reference_path>>,,,,,,,,,,
+3,calibrate,<<calibrator_reference_path>>,,,,10.0,,,,,,
+4,ANML,<<anml_reference_path>>,['QC'],anmlQC,,,2.0,0.3,,,,
+5,qcCheck,,,,,15.0,,,<<qc_reference_path>>,0.8,1.2,True
+6,ANML,<<anml_reference_path>>,['Sample'],anmlSMP,,,2.0,0.3,,,,
