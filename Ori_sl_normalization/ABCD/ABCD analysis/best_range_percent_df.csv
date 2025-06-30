@@ -1,0 +1,19 @@
+Aptamers,Pearson's r,Spearman's r,R^2,Slope,Intercept,Wald's P-value,Wald's Q-value,Method
+all 7K,81,66,60,84,75,100,100,EDTA plasma (consecutive runs)
+Sheba-filtered,87,78,74,89,83,100,100,EDTA plasma (consecutive runs)
+388 RAPs,91,82,80,90,86,100,100,EDTA plasma (consecutive runs)
+all 7K,70,52,56,70,65,92,92,CPT Plasma
+Sheba-filtered,84,73,72,82,75,99,99,CPT Plasma
+388 RAPs,88,78,79,87,79,100,100,CPT Plasma
+all 7K,52,31,39,32,27,82,81,STRECK-PROT+ DS
+Sheba-filtered,69,54,54,53,45,94,94,STRECK-PROT+ DS
+388 RAPs,72,60,59,55,48,95,94,STRECK-PROT+ DS
+all 7K,52,29,37,23,19,85,84,STRECK-cfDNA DS
+Sheba-filtered,68,50,51,42,36,93,93,STRECK-cfDNA DS
+388 RAPs,72,58,58,48,40,96,96,STRECK-cfDNA DS
+all 7K,37,19,25,14,13,72,69,STRECK-PROT+
+Sheba-filtered,58,44,44,32,30,88,87,STRECK-PROT+
+388 RAPs,64,51,49,40,36,91,89,STRECK-PROT+
+all 7K,40,20,25,47,37,,,Serum
+Sheba-filtered,58,44,40,63,52,,,Serum
+388 RAPs,67,51,47,64,54,,,Serum
