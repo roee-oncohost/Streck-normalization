@@ -5,14 +5,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 plt.rcParams["figure.dpi"] = 300
-plt.rcParams["font.family"] = "Aptos"
+# plt.rcParams["font.family"] = "Aptos"
 
 # define params
-latest_date_str = '20250427'
+latest_date_str = '20250629' # '20250427'
 refrence_method = 'EDTA plasma'
-
+print('13')
+print('hello')
 # load data
-adats_path = '~\Oncohost DX\Shares - R&D\Data Analysis\Experiments\ADAT_extraction\Output'
+adats_path = r'C:\Users\RoeeOrland\Oncohost DX\Shares - R&D\Data Analysis\Experiments\ADAT_extraction\Output' # '~\Oncohost DX\Shares - R&D\Data Analysis\Experiments\ADAT_extraction\Output'
 samples_fname = '_adat_data_samples_with_sample_info.csv'
 measurements_fname = '_adat_data_measurements.csv'
 labguru_fname = '_samples_from_labguru.xlsx'
@@ -64,7 +65,9 @@ for tested_method in tested_methods_list:
         for prot in measurements_df.columns:
             data_a = measurements_df.loc[samples_df['material_collected']==refrence_method,[prot]].join(samples_df[['SubjectId']]).set_index('SubjectId').sort_index()
             data_b = measurements_df.loc[samples_df['material_collected']==tested_method,[prot]].join(samples_df[['SubjectId']]).set_index('SubjectId').sort_index()
-            
+            ## Ro'ee added:
+            data_a = data_a[~data_a.index.duplicated(keep='first')]  
+            ## End of Ro'ee added  
 
             tmp_corr_df = pd.concat([data_a,data_b],axis=1)
             stats_df.loc[prot,'Pearson'] = tmp_corr_df.corr(method='pearson').iloc[0,1]#data_a.corrwith(data_b[prot].values, method='pearson')
@@ -140,15 +143,18 @@ for tested_method in tested_methods_list:
             plt.rcParams['lines.linewidth'] = lw
             
     best_range_percent_df_ls.append(best_range_percent_df_method.copy().reset_index(drop=False).rename({'index':'Aptamers'},axis=1).set_index(['Aptamers','Method']))
+print('line 145')
 best_range_percent_df = pd.concat(best_range_percent_df_ls, axis=0)
-
+print('line 147')
 stable_prots={}
 for mthd in tested_methods_list:
+    print('line 150')
     stable_prots_mthd = stats_df_dict[mthd].index[stats_df_dict[mthd]['Intercept'].between(left=best_range_dict['Intercept'][0], right=best_range_dict['Intercept'][1], inclusive='both')&stats_df_dict[mthd]['Slope'].between(left=best_range_dict['Slope'][0], right=best_range_dict['Slope'][1], inclusive='both')].to_list()
     stable_prots.update({mthd:stable_prots_mthd})
 stable_prots_wo_DS = stable_prots['STRECK-PROT+']
-
+print('154')
 for stat in best_range_percent_df.columns:
+    print(f"c: {c}")
     c+=1
     # summary barplot #1
     if stat not in ['Pearson','Spearman','R^2']:

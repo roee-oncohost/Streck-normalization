@@ -24,7 +24,7 @@ lw = plt.rcParams['lines.linewidth']
 # define params
 latest_date_str = '20250629' # '20250518'
 refrence_method = 'EDTA plasma'
-load_file = True
+load_file = True # False # True
 
 # define aptamer groups and params
 sheba_df = pd.read_csv('data/SeqId Annotations Secreted & Sheba Filters.csv',index_col=0)
@@ -120,8 +120,10 @@ if load_file==False:
             for prot in measurements_df.columns:
                 data_a = measurements_df.loc[samples_df['material_collected']==refrence_method,[prot]].join(samples_df[['SubjectId']]).set_index('SubjectId').sort_index()
                 data_b = measurements_df.loc[samples_df['material_collected']==tested_method,[prot]].join(samples_df[['SubjectId']]).set_index('SubjectId').sort_index()
-                data_a = data_a.loc[data_b.index]                
-                
+                data_a = data_a.loc[data_b.index]  
+                ## added by Ro'ee:
+                data_a = data_a[~data_a.index.duplicated(keep='first')]              
+                ## data_a: protein values for the reference method (EDTA) FOR SAMPLES COLLECTED ALSO WITH TESTED METHOD (one of the 6 methods) 
                 tmp_corr_df = pd.concat([data_a,data_b],axis=1)
                 stats_df.loc[prot,"Pearson's r"] = tmp_corr_df.corr(method='pearson').iloc[0,1]#data_a.corrwith(data_b[prot].values, method='pearson')
                 stats_df.loc[prot,"Spearman's r"] = tmp_corr_df.corr(method='spearman').iloc[0,1]#data_a.corrwith(data_b[prot].values, method='spearman')
@@ -148,8 +150,9 @@ if load_file==False:
                 if stat=='Method':
                     continue
                 plt_df = stats_df.loc[group,stat].copy()
-                best_range=best_range_dict[stat]
+                best_range = best_range_dict[stat]
                 best_range_percent = round(100*plt_df.between(left=best_range[0], right=best_range[1], inclusive='both').apply(int).mean())
+                ## best_range_percent: for the group (7K, Sheba, RAPs) and statistic (Pearson's, Spearman's, slope, intercept, R^2, p-value, q-value) what fraction of values are in the best range (defined in best_range_dict)
                 best_range_percent_df_method.loc[group_name,stat] = best_range_percent
         best_range_percent_df_ls.append(best_range_percent_df_method.copy().reset_index(drop=False).rename({'index':'Aptamers'},axis=1).set_index('Aptamers'))
     best_range_percent_df = pd.concat(best_range_percent_df_ls, axis=0)
@@ -172,11 +175,13 @@ for mthd in tested_methods_list:
 methods_to_compare = ['EDTA plasma (consecutive runs)','STRECK-cfDNA DS']
 # methods_to_compare = ['STRECK-PROT+ DS','STRECK-PROT+']
 
-c=0
+## Figures
+
+c = 0
 for stat in best_range_percent_df.columns:
     if stat=='Method':
         continue
-    c+=1
+    c += 1
     # summary barplot #1
     if stat in ['Slope','Intercept']:
         condition_str = f"between {str(best_range_dict[stat])}"
@@ -315,6 +320,9 @@ for apt in selected_aptamers:
     data_a = samples_df.loc[samples_df['material_collected']==refrence_method].iloc[:,-2:].rename({'material_collected':'Method'},axis=1).join(measurements_df[apt].apply(np.log2)).set_index('SubjectId').sort_index()
     data_b = samples_df.loc[samples_df['material_collected']==chosen_method].iloc[:,-2:].rename({'material_collected':'Method'},axis=1).join(measurements_df[apt].apply(np.log2)).set_index('SubjectId').sort_index()
     data_a = data_a.loc[data_b.index]
+    ## Ro'ee added:
+    data_a = data_a[~data_a.index.duplicated(keep='first')]  
+    ## End of Ro'ee added   
     plt_df = pd.concat([data_a.rename({apt:f"{refrence_method} {log2_str}"},axis=1),data_b.rename({apt:f"{chosen_method} {log2_str}"},axis=1)],axis=1)
 
     apt_name = f"{raps_df.loc[apt,'Target Full Name']} ({raps_df.loc[apt,'Entrez Gene Name']})"
@@ -468,7 +476,7 @@ for stat in stats_df_all.columns:
     ax2.set_ylim([0,101])
     plt.subplots_adjust(bottom=0.2)
     plt.title(f"{stat} by RAPs repetition")    
-    cc + =1
+    cc += 1
     plt.savefig(f"results/fig{c}.{cc} - {stat} of {chosen_method} vs RAP Repetitions quantile.png")
     plt.close()
 
