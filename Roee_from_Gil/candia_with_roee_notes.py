@@ -63,7 +63,7 @@ def msnCal_norm(RFU_hyb, somamers, sampl, dil_lab=("0", "0_005", "0_5", "20")):
     # 2nd normalization - Median signal normalization on calibrators
     RFU_msnCal = RFU_hyb.copy()
     
-    for sampl_type in ['Calibrator', 'Buffer']: # Only calibrators according to the paper (and SomaLogic's documentation)
+    for sampl_type in ['Calibrator', 'Buffer']: #, 'QC']: #['Calibrator']: #['Calibrator', 'Buffer']: # Only calibrators according to the paper (and SomaLogic's documentation)
         sel2 = sampl['SampleType'] == sampl_type
         indx_sampl = sampl.index[sel2]
         for dil in dil_lab:
@@ -291,10 +291,12 @@ control_samples = ['Calibrator', 'Buffer', 'QC']
  
 RFU_hyb = hyb_norm_roee(RFU, control_rfu, somamers)
 
-
+## Checking how much the hybridization normalization changed the data
+hyb_transformation_effect = RFU/RFU_hyb_ref
+extremes_1 = (hyb_transformation_effect.min().min(), hyb_transformation_effect.max().max())
 # Checking the error of the reverse engineering
-(RFU_hyb / RFU_hyb_ref).max().max()
-(RFU_hyb / RFU_hyb_ref).min().min() # I got error of up to 3%
+max_hybrid_normalization_error_upward = (RFU_hyb / RFU_hyb_ref).max().max()
+max_hybrid_normalization_error_downward = (RFU_hyb / RFU_hyb_ref).min().min() # I got error of up to 3%
 
 #(RFU_hyb / RFU_hyb_ref)
 
@@ -303,10 +305,7 @@ z = RFU_hyb / RFU
 x = (RFU_hyb / RFU_hyb_ref)
 
 y = (x <= 0.99) | (x>=1.01)
-y = y.apply(sum, axis=1) # TODO: Two samples are not good, the rest are fine, why? Not calibratorts/qc/buffer (66, 13 are not calibrated well - 66 is flagged later not by this step)
-# TODO: check if bad samples are flagged
-# TODO: start from good plates
-# TODO: % vs. error for sample
+
 
 z = (np.abs(x-1)).apply(np.mean, axis=1) * 100
 plt.figure()
@@ -316,7 +315,7 @@ plt.ylabel('Number of samples')
 plt.show()
 
 # %%
-(np.abs(x-1)).apply(np.mean, axis=1) * 100
+# (np.abs(x-1)).apply(np.mean, axis=1) * 100
 
 # %%
 #%% 2 hyb.msnCal reference
@@ -344,6 +343,9 @@ y = y.apply(sum, axis=1)
 
 x.max().max()
 x.min().min()
+
+# msnCal_transformation_effect = RFU_hyb_ref / RFU_msnCal_ref
+# extremes_2 = (msnCal_transformation_effect.min().min(), msnCal_transformation_effect.max().max())
 
 z = (np.abs(x.loc[sampl['SampleType'].isin(['Calibrator'])].values-1)).mean(axis=1) * 100
 plt.figure()
@@ -390,7 +392,10 @@ RFU_ps = ps_norm(RFU_msnCal, sampl, ps_ref_path)
 
 x = RFU_ps / RFU_ps_ref
 
-# %%
+ps_transformation_effect = RFU_msnCal_ref/RFU_ps_ref
+extremes_3 = (ps_transformation_effect.min().min(), ps_transformation_effect.max().max())
+
+
 #%% 3 hyb.msnCal.ps without propgating error - perfect!
 
 
@@ -416,6 +421,9 @@ plt.hist(ps_ratio.values.flatten(), bins=30)
 all(RFU_msnCal_ref_meta['NormScale_20'] == RFU_cal_ref_meta['NormScale_20'])
 all(RFU_msnCal_ref_meta['NormScale_0.005'] == RFU_cal_ref_meta['NormScale_0.005'])
 all(RFU_msnCal_ref_meta['NormScale_0.5'] == RFU_cal_ref_meta['NormScale_0.5'])
+
+cal_transformation_effect = RFU_ps_ref/RFU_cal_ref
+extremes_4 = (cal_transformation_effect.min().min(), cal_transformation_effect.max().max())
 
 # %%
 #%% 4 hyb.msnCal.ps.cal with propgating error
