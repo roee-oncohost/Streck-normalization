@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 def truncate(number, decimals):
     multiplier = 10**decimals
@@ -48,6 +48,20 @@ def msnCal_norm(RFU_hyb, somamers, sampl, dil_lab=("0", "0_005", "0_5", "20")):
     RFU_msnCal = RFU_msnCal.apply(lambda x: round(x, 1))
     return RFU_msnCal
 
+def msnCal_norm2(RFU_hyb, somamers, sampl, dil_lab=("0", "0_005", "0_5", "20")):
+    # 2nd normalization - Median signal normalization on calibrators
+    RFU_msnCal = RFU_hyb.copy()
+    
+    for sampl_type in ['Calibrator', 'Buffer']: #, 'QC']: #['Calibrator']: #['Calibrator', 'Buffer']: # Only calibrators according to the paper (and SomaLogic's documentation)
+        sel2 = sampl['SampleType'] == sampl_type
+        indx_sampl = sampl.index[sel2]
+        for dil in dil_lab:
+                somamers_tmp = somamers[somamers['Dilution'] == dil].index
+                rgd_ialpha = RFU_msnCal.loc[indx_sampl, somamers_tmp] / RFU_msnCal.loc[indx_sampl, somamers_tmp].median()
+                SFgd_ialpha = 1 / rgd_ialpha.median(axis=1)
+                RFU_msnCal.loc[indx_sampl, somamers_tmp] = RFU_msnCal.loc[indx_sampl, somamers_tmp].mul(SFgd_ialpha, axis=0)
+    RFU_msnCal = RFU_msnCal.apply(lambda x: round(x, 1))
+    return RFU_msnCal
 
 def ps_norm(RFU_msnCal, sampl, ps_ref_path='SD4.1ReV_Plasma_Calibrator_200169.txt'):
     # 3rd normalization - Plate scale normalization
